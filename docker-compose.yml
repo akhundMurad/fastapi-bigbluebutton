@@ -1,0 +1,38 @@
+version: '3.7'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: app
+    hostname: app
+    command: sh -c "python main.py"
+    volumes:
+    - ./src:/app
+    env_file:
+      - .envfile
+    ports:
+    - '0.0.0.0:8000:8000'
+    depends_on:
+      - db
+    restart: always
+    container_name: app
+    logging:
+      driver: "json-file"
+
+  db:
+    image: postgres:12-alpine
+    env_file:
+      - .envfile
+    volumes:
+    - db-data:/var/lib/postgresql/data
+    container_name: db
+    expose:
+      - '5432'
+    restart: unless-stopped
+    logging:
+      driver: 'json-file'
+
+volumes:
+  db-data:
