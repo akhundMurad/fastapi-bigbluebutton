@@ -2,7 +2,9 @@ import uvicorn
 
 from loguru import logger
 from fastapi import FastAPI
+
 from core.db import database
+from api import auth
 
 app = FastAPI()
 app.state.database = database
@@ -24,9 +26,7 @@ async def shutdown() -> None:
         logger.info('Disconnected from DB.')
 
 
-@app.get("/")
-def root():
-    return {"Hello": "World"}
+app.include_router(auth.router)
 
 
 if __name__ == "__main__":

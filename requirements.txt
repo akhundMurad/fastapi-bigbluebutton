@@ -7,3 +7,13 @@ psycopg2-binary==2.9.1
 ormar==0.10.13
 python-dotenv==0.18.0
 loguru==0.5.3
+alembic==1.6.5
+pytest==6.2.4
+aiosqlite==0.17.0
+pytest-env==0.6.2
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+python-multipart==0.0.5
+faker=8.10.0
+pytest-asyncio==0.15.1
+httpx==0.18.2

@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile
     image: app
     hostname: app
-    command: sh -c "python main.py"
+    command: sh -c "alembic upgrade head && python main.py"
     volumes:
     - ./src:/app
     env_file:
