@@ -26,6 +26,7 @@ fileConfig(config.config_file_name)
 # for 'autogenerate' support
 # from myapp import mymodel
 from core.models.users import User
+from core.models.bigbluebutton import Meeting, Schedule, ScheduleCell
 
 target_metadata = metadata
 # target_metadata = None
