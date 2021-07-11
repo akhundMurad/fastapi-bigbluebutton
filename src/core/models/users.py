@@ -1,7 +1,8 @@
-import ormar
 import enum
 
-from core.db import metadata, database
+import ormar
+
+from core.db import database, metadata
 
 
 class UserRoleChoices(enum.Enum):

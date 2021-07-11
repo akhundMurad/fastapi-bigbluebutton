@@ -1,6 +1,6 @@
 from typing import Optional
 
-from pydantic import BaseModel, validator, root_validator
+from pydantic import BaseModel, root_validator, validator
 
 from core.models.users import UserRoleChoices
 

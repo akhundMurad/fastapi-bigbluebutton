@@ -1,5 +1,5 @@
 from selector import get_user
-from utils.hashing import verify_password
+from utils.hashing import decode_token, verify_password
 
 
 async def authenticate_user(username: str, password: str):
@@ -12,3 +12,8 @@ async def authenticate_user(username: str, password: str):
     ):
         return False
     return user
+
+
+def verify_jwt(token: str) -> bool:
+    payload = decode_token(token)
+    return True if payload else False
