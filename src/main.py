@@ -4,7 +4,7 @@ from loguru import logger
 from fastapi import FastAPI
 
 from core.db import database
-from api import auth
+from views import auth, bigbluebutton
 
 app = FastAPI()
 app.state.database = database
@@ -27,6 +27,7 @@ async def shutdown() -> None:
 
 
 app.include_router(auth.router)
+app.include_router(bigbluebutton.router)
 
 
 if __name__ == "__main__":

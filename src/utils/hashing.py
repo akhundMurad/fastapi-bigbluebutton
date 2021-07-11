@@ -1,7 +1,8 @@
+import time
 from datetime import timedelta, datetime
 from typing import Optional
 
-from jose import jwt
+from jose import jwt, JWTError
 from passlib.context import CryptContext
 
 from core.settings import SECRET_KEY, ALGORITHM
@@ -27,3 +28,13 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
+
+
+def decode_token(token: str) -> dict:
+    try:
+        decoded_token = jwt.decode(token, SECRET_KEY,
+                                   algorithms=[ALGORITHM])
+        return decoded_token if decoded_token[
+                                    "exp"] >= time.time() else None
+    except JWTError:
+        return {}
