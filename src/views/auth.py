@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 from starlette import status
 
-from core.schemas.auth import UserCreateSchema, UserRetrieveSchema, Token
+from core.schemas.auth import Token, UserCreateSchema, UserRetrieveSchema
 from core.settings import ACCESS_TOKEN_EXPIRE_MINUTES
 from dependencies import get_current_user
 from service import create_user

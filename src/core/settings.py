@@ -1,6 +1,6 @@
 import os
 
-from dotenv import load_dotenv, find_dotenv
+from dotenv import find_dotenv, load_dotenv
 
 
 def _get_database_url() -> str:

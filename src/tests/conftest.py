@@ -7,17 +7,15 @@ from typing import Tuple
 import faker
 import pytest
 import sqlalchemy
-
-from loguru import logger
-
 from fastapi.testclient import TestClient
+from loguru import logger
 
 from core.db import metadata
 from core.models.bigbluebutton import Meeting
 from core.models.users import User, UserRoleChoices
 from core.settings import DATABASE_URL
 from main import app
-from utils.hashing import get_password_hash, create_access_token
+from utils.hashing import create_access_token, get_password_hash
 
 
 @pytest.fixture(scope='session', autouse=True)

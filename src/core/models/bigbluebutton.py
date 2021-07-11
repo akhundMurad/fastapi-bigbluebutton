@@ -1,11 +1,10 @@
+from datetime import datetime
+from typing import List, Optional
 from uuid import uuid4
 
 import ormar
 
-from datetime import datetime
-from typing import List, Optional
-
-from core.db import metadata, database
+from core.db import database, metadata
 from core.models.users import User
 
 

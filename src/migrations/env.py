@@ -1,18 +1,14 @@
 import sys
 from logging.config import fileConfig
 
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
-
 from alembic import context
-
+from sqlalchemy import engine_from_config, pool
 
 sys.path = ['', '..'] + sys.path[1:]
 
 
-from core.settings import DATABASE_URL
 from core.db import metadata
-
+from core.settings import DATABASE_URL
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -22,11 +18,11 @@ config = context.config
 # This line sets up loggers basically.
 fileConfig(config.config_file_name)
 
+from core.models.bigbluebutton import Meeting, Schedule, ScheduleCell
 # add your model's MetaData object here
 # for 'autogenerate' support
 # from myapp import mymodel
 from core.models.users import User
-from core.models.bigbluebutton import Meeting, Schedule, ScheduleCell
 
 target_metadata = metadata
 # target_metadata = None

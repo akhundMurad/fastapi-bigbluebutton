@@ -1,5 +1,5 @@
 from selector import get_user
-from utils.hashing import verify_password, decode_token
+from utils.hashing import decode_token, verify_password
 
 
 async def authenticate_user(username: str, password: str):

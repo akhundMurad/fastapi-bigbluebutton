@@ -1,15 +1,13 @@
-from fastapi import Depends, Request, HTTPException
-from fastapi.security import OAuth2PasswordBearer, HTTPBearer, \
-    HTTPAuthorizationCredentials
+from fastapi import Depends, HTTPException, Request
+from fastapi.security import (HTTPAuthorizationCredentials, HTTPBearer,
+                              OAuth2PasswordBearer)
+from jose import JWTError, jwt
 from starlette import status
-
-from jose import jwt, JWTError
-
-from utils.auth import verify_jwt
 
 from core.schemas.auth import TokenData
 from core.settings import ALGORITHM, SECRET_KEY
 from selector import get_user
+from utils.auth import verify_jwt
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="users/token")
 

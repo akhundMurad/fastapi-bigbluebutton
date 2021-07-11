@@ -1,7 +1,6 @@
 import uvicorn
-
-from loguru import logger
 from fastapi import FastAPI
+from loguru import logger
 
 from core.db import database
 from views import auth, bigbluebutton
