@@ -2,7 +2,7 @@ import json
 import httpx
 from functools import cached_property
 from hashlib import sha1
-from typing import Optional
+from typing import Optional, Dict, List
 from urllib.parse import urlencode
 
 import xmltodict
@@ -16,6 +16,8 @@ from core.schemas.bigbluebutton import BigbluebuttonServer
 
 class ServerAPI:
     _server: Optional[BigbluebuttonServer] = None
+
+    meetings: Dict[str, Meeting]
 
     @property
     def server(self) -> BigbluebuttonServer:
@@ -57,6 +59,27 @@ class ServerAPI:
         response_content = xmltodict.parse(response.text)
         response_dict = json.loads(json.dumps(response_content))
         return response_dict.get('response')
+
+    async def refresh(self):
+        await self.get_meetings()
+
+    async def get_meetings(self) -> None:
+        api_method = 'getMeetings'
+        response = await self.request(api_method)
+        _meetings = self.meetings
+
+        if response["meetings"] is None:
+            _meetings = {}
+
+        if not isinstance(response["meetings"]["meeting"], list):
+            response["meetings"]["meeting"] = [response["meetings"]["meeting"]]
+
+        for meeting in response["meetings"]['meeting']:
+            meeting_id = meeting['meetingID']
+            del meeting["meetingID"]
+            _meetings[meeting_id] = meeting
+
+        self.meetings = _meetings
 
 
 class MeetingAPI:
