@@ -2,7 +2,7 @@ import json
 import httpx
 from functools import cached_property
 from hashlib import sha1
-from typing import Optional, Dict, List
+from typing import Optional, Dict
 from urllib.parse import urlencode
 
 import xmltodict
@@ -12,12 +12,20 @@ from core import settings
 from core.models.bigbluebutton import Meeting
 from core.models.users import User, UserRoleChoices
 from core.schemas.bigbluebutton import BigbluebuttonServer
+from main import app
 
 
 class ServerAPI:
     _server: Optional[BigbluebuttonServer] = None
 
     meetings: Dict[str, Meeting]
+
+    def __init__(self):
+        self.redis = app.state.redis
+        self.meetings = self.redis.get(f"{self._server.url}::meetings") or {}
+
+    def __del__(self):
+        self.redis.set(f"{self._server.url}::meetings", self.meetings)
 
     @property
     def server(self) -> BigbluebuttonServer:
@@ -44,6 +52,8 @@ class ServerAPI:
         api_method = 'create'
         params = kwargs['kwargs']
         response = await self.request(api_method, params)
+
+        await self.refresh()
 
         return response
 

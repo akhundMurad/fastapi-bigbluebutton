@@ -36,3 +36,8 @@ BBB_SERVER_URL: str = os.environ.get('BBB_SERVER_URL')
 BBB_SECRET_KEY: str = os.environ.get('BBB_SECRET_KEY')
 BBB_ATTENDEE_PW: str = os.environ.get('BBB_ATTENDEE_PW')
 BBB_MOD_PW: str = os.environ.get('BBB_MOD_PW')
+
+REDIS_HOST: str = os.environ.get('REDIS_HOST', 'localhost')
+REDIS_PORT: str = str(os.environ.get('REDIS_PORT', 6379))
+REDIS_URL: str = os.environ.get('REDIS_URL', 'redis://' + REDIS_HOST + ':' + REDIS_PORT + '/0')  # noqa: F401
+REDIS_PASSWORD: str = os.environ.get('REDIS_PASSWORD', '')
