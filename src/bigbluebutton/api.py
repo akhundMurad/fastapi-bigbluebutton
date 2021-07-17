@@ -14,18 +14,27 @@ from core.models.users import User, UserRoleChoices
 from core.schemas.bigbluebutton import BigbluebuttonServer
 from main import app
 
+__all__ = ['MeetingAPI', 'ServerAPI']
+
 
 class ServerAPI:
     _server: Optional[BigbluebuttonServer] = None
 
     meetings: Dict[str, Meeting]
 
-    def __init__(self):
-        self.redis = app.state.redis
-        self.meetings = self.redis.get(f"{self._server.url}::meetings") or {}
+    async def __aenter__(self):
+        self.meetings = await app.state.redis.get(
+            f"{self.server.url}::meetings"
+        ) or {}
+        return self
 
-    def __del__(self):
-        self.redis.set(f"{self._server.url}::meetings", self.meetings)
+    async def __aexit__(self, *excinfo):
+        await app.state.redis.set(f"{self.server.url}::meetings",
+                                  self._converted_meetings)
+
+    @property
+    def _converted_meetings(self):
+        return json.dumps(self.meetings)
 
     @property
     def server(self) -> BigbluebuttonServer:
@@ -58,7 +67,7 @@ class ServerAPI:
         return response
 
     async def request(self, api_method: str, params: dict = None) -> dict:
-        with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient() as client:
             response = await client.get(self.get_url(api_method, params))
 
         if response.status_code != 200:
@@ -113,10 +122,13 @@ class MeetingAPI:
             'moderatorOnlyMessage': _meeting_data.get('moderator_message'),
             'record': _meeting_data.get('record'),
             'autoStartRecording': _meeting_data.get('auto_start_recording'),
-            'allowStartStopRecording': _meeting_data.get('allow_start_stop_recording'),
-            'webcamsOnlyForModerator': _meeting_data.get('webcams_only_for_moderator'),
+            'allowStartStopRecording': _meeting_data.get(
+                'allow_start_stop_recording'),
+            'webcamsOnlyForModerator': _meeting_data.get(
+                'webcams_only_for_moderator'),
             'muteOnStart': _meeting_data.get('mute_on_start'),
-            'allowModsToUnmuteUsers': _meeting_data.get('allow_mods_to_unmute_users'),
+            'allowModsToUnmuteUsers': _meeting_data.get(
+                'allow_mods_to_unmute_users'),
             'maxParticipants': _meeting_data.get('max_participants'),
             'duration': _meeting_data.get('duration')
         }
@@ -125,15 +137,17 @@ class MeetingAPI:
         return self.meeting.id in self.server_api.meetings.keys()
 
     async def create(self) -> dict:
-        response = await self.server_api.create_meeting(
-            **self.data
-        )
+        async with self.server_api as api:
+            response = await api.create_meeting(
+                **self.data
+            )
         return response
 
     async def is_meeting_running(self) -> dict:
         api_method = 'isMeetingRunningAnchor'
         params = {'meetingID': self.meeting.id}
-        response = await self._server_api.request(api_method, params)
+        async with self.server_api as api:
+            response = await api.request(api_method, params)
 
         return response
 
@@ -143,18 +157,20 @@ class MeetingAPI:
             'meetingID': self.meeting.id,
             'password': settings.BBB_MOD_PW
         }
-        response = await self._server_api.request(api_method, params)
+        async with self.server_api as api:
+            response = await api.request(api_method, params)
 
         return response
 
     async def get_meeting_info(self) -> dict:
         api_method = 'getMeetingInfo'
         params = {'meetingID': self.meeting.id}
-        response = await self._server_api.request(api_method, params)
+        async with self.server_api as api:
+            response = await api.request(api_method, params)
 
         return response
 
-    def join(self, user: User) -> str:
+    async def join(self, user: User) -> str:
         api_method = 'join'
         params = {
             'meetingID': self.meeting.id,
@@ -162,7 +178,8 @@ class MeetingAPI:
             'password': self._get_password(user),
             'userID': user.id
         }
-        return self.server_api.get_url(api_method, params)
+        async with self.server_api as api:
+            return api.get_url(api_method, params)
 
     @staticmethod
     def _get_password(user):
