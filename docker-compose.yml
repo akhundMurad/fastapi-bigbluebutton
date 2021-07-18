@@ -34,5 +34,20 @@ services:
     logging:
       driver: 'json-file'
 
+  redis:
+    image: redis:alpine
+    working_dir: /data
+    expose:
+      - '6379'
+    volumes:
+      - /data:/data
+    container_name: redis
+    restart: unless-stopped
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: '10m'
+        max-file: '1'
+
 volumes:
   db-data:
