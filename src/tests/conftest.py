@@ -1,3 +1,4 @@
+import asyncio
 import datetime
 import os
 import random
@@ -15,7 +16,13 @@ from core.models.bigbluebutton import Meeting
 from core.models.users import User, UserRoleChoices
 from core.settings import DATABASE_URL
 from main import app
+from redis import init_redis_pool
 from utils.hashing import create_access_token, get_password_hash
+
+
+@pytest.fixture(scope="session")
+def event_loop():
+    return asyncio.get_event_loop()
 
 
 @pytest.fixture(scope='session', autouse=True)
@@ -26,6 +33,15 @@ def database():
     yield
     logger.info('Whole test run finishes.')
     os.remove('test.db')
+
+
+@pytest.fixture(scope='session', autouse=True)
+async def redis():
+    logger.info('Creating Redis pool')
+    app.state.redis = await init_redis_pool()
+    yield
+    app.state.redis.close()
+    await app.state.redis.wait_closed()
 
 
 @pytest.fixture(scope='module')
@@ -73,3 +89,69 @@ def auth_headers(test_user) -> dict:
     })
     headers['Authorization'] = f'Bearer {token}'
     return headers
+
+
+@pytest.fixture
+def meeting_end_response(mocker):
+    mocked_get = mocker.patch('bigbluebutton.api.httpx.AsyncClient.get')
+    response = mocker.Mock()
+    response.status_code = 200
+    with open('tests/data/response_end.xml', 'r') as file:
+        response.text = file.read()
+
+    mocked_get.return_value = response
+
+
+@pytest.fixture
+def meeting_create_response(mocker):
+    mocked_get = mocker.patch('bigbluebutton.api.httpx.AsyncClient.get')
+    response = mocker.Mock()
+    response.status_code = 200
+    with open('tests/data/response_create.xml', 'r') as file:
+        response.text = file.read()
+
+    mocked_get.return_value = response
+
+
+@pytest.fixture
+def meeting_get_meeting_info_response(mocker):
+    mocked_get = mocker.patch('bigbluebutton.api.httpx.AsyncClient.get')
+    response = mocker.Mock()
+    response.status_code = 200
+    with open('tests/data/response_get_meeting_info.xml', 'r') as file:
+        response.text = file.read()
+
+    mocked_get.return_value = response
+
+
+@pytest.fixture
+def meeting_get_meetings_response(mocker):
+    mocked_get = mocker.patch('bigbluebutton.api.httpx.AsyncClient.get')
+    response = mocker.Mock()
+    response.status_code = 200
+    with open('tests/data/response_get_meetings.xml', 'r') as file:
+        response.text = file.read()
+
+    mocked_get.return_value = response
+
+
+@pytest.fixture
+def meeting_is_meeting_running_response(mocker):
+    mocked_get = mocker.patch('bigbluebutton.api.httpx.AsyncClient.get')
+    response = mocker.Mock()
+    response.status_code = 200
+    with open('tests/data/response_is_meeting_running.xml', 'r') as file:
+        response.text = file.read()
+
+    mocked_get.return_value = response
+
+
+@pytest.fixture
+def meeting_join_response(mocker):
+    mocked_get = mocker.patch('bigbluebutton.api.httpx.AsyncClient.get')
+    response = mocker.Mock()
+    response.status_code = 200
+    with open('tests/data/response_join.xml', 'r') as file:
+        response.text = file.read()
+
+    mocked_get.return_value = response
