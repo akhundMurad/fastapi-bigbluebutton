@@ -41,4 +41,4 @@ REDIS_HOST: str = os.environ.get('REDIS_HOST', 'localhost')
 REDIS_PORT: str = str(os.environ.get('REDIS_PORT', 6379))
 REDIS_PASSWORD: str = os.environ.get('REDIS_PASSWORD', '')
 REDIS_DB: int = int(os.environ.get('REDIS_DB', 0))
-REDIS_URL: str = os.environ.get('REDIS_URL', 'redis://' + REDIS_HOST + ':' + REDIS_PORT + '/' + str(REDIS_DB))  # noqa: F401
+REDIS_URL: str = os.environ.get('REDIS_URL', 'redis://' + REDIS_HOST + ':' + REDIS_PORT + '/' + str(REDIS_DB))  # noqa: E501

@@ -23,18 +23,15 @@ class ServerAPI:
     meetings: Dict[str, Meeting]
 
     async def __aenter__(self):
-        self.meetings = await app.state.redis.get(
+        meetings = await app.state.redis.get(
             f"{self.server.url}::meetings"
-        ) or {}
+        )
+        self.meetings = json.loads(meetings) or {}
         return self
 
     async def __aexit__(self, *excinfo):
-        await app.state.redis.set(f"{self.server.url}::meetings",
-                                  self._converted_meetings)
-
-    @property
-    def _converted_meetings(self):
-        return json.dumps(self.meetings)
+        meetings = json.dumps(self.meetings)
+        await app.state.redis.set(f"{self.server.url}::meetings", meetings)
 
     @property
     def server(self) -> BigbluebuttonServer:
