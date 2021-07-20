@@ -1,11 +1,11 @@
-from datetime import timedelta, datetime
+import time
+from datetime import datetime, timedelta
 from typing import Optional
 
-from jose import jwt
+from jose import JWTError, jwt
 from passlib.context import CryptContext
 
-from core.settings import SECRET_KEY, ALGORITHM
-
+from core.settings import ALGORITHM, SECRET_KEY
 
 pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 
@@ -27,3 +27,13 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
+
+
+def decode_token(token: str) -> dict:
+    try:
+        decoded_token = jwt.decode(token, SECRET_KEY,
+                                   algorithms=[ALGORITHM])
+        return decoded_token if decoded_token[
+                                    "exp"] >= time.time() else None
+    except JWTError:
+        return {}

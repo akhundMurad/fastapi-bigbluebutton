@@ -6,9 +6,8 @@ Create Date: 2021-07-08 20:41:37.824101
 
 """
 import ormar
-from alembic import op
 import sqlalchemy as sa
-
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = '86cd34fa749f'

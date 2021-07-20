@@ -1,9 +1,10 @@
-import ormar
-
 from datetime import datetime
 from typing import List, Optional
+from uuid import uuid4
 
-from core.db import metadata, database
+import ormar
+
+from core.db import database, metadata
 from core.models.users import User
 
 
@@ -36,11 +37,16 @@ class Meeting(ormar.Model):
         metadata = metadata
         database = database
 
-    id: str = ormar.UUID(primary_key=True, uuid_format='string')
+    id: str = ormar.UUID(primary_key=True, default=uuid4, unique=True,
+                         uuid_format="string")
     name: str = ormar.String(max_length=512)
 
-    welcome_message: Optional[str] = ormar.String(max_length=128)
-    moderator_message: Optional[str] = ormar.String(max_length=128)
+    welcome_message: Optional[str] = ormar.String(
+        max_length=128, nullable=True
+    )
+    moderator_message: Optional[str] = ormar.String(
+        max_length=128, nullable=True
+    )
     record: bool = ormar.Boolean(default=False)
     auto_start_recording: bool = ormar.Boolean(default=False)
     allow_start_stop_recording: bool = ormar.Boolean(default=True)
