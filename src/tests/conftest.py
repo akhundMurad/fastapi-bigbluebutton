@@ -39,7 +39,7 @@ def database():
 async def redis():
     logger.info('Creating Redis pool')
     app.state.redis = await init_redis_pool()
-    yield
+    yield app.state.redis
     app.state.redis.close()
     await app.state.redis.wait_closed()
 

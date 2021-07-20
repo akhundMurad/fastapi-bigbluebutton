@@ -18,7 +18,7 @@ class TestGetMeetings:
         response = client.get('/bbb/', headers=auth_headers)
         data = response.json()
 
-        assert data[0].get('id') == str(test_meeting.id)
+        assert str(test_meeting.id) in [meeting['id'] for meeting in data]
 
 
 class TestGetMeeting:
@@ -65,7 +65,6 @@ class TestCreateMeeting:
     def test_create_meeting_content(self, client, test_meeting, auth_headers):
         data = test_meeting.dict(exclude={'id'})
         data = _process_dict(data)
-        print(data)
 
         response = client.post('/bbb/', json=data,
                                headers=auth_headers)

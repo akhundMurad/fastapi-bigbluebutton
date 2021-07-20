@@ -1,6 +1,6 @@
 from aioredis import Redis, create_redis_pool
 
-from core.settings import REDIS_URL, REDIS_PASSWORD, REDIS_DB
+from core.settings import REDIS_DB, REDIS_PASSWORD, REDIS_URL
 
 
 async def init_redis_pool() -> Redis:

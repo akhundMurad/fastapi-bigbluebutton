@@ -4,7 +4,6 @@ import pytest
 
 from bigbluebutton.api import ServerAPI
 from core.settings import BBB_SERVER_URL
-from main import app
 
 
 class TestServerAPIRequestResponse:
@@ -62,12 +61,12 @@ class TestServerAPIRequestResponse:
 
 class TestServerAPIGetMeetingsCaching:
     @pytest.mark.asyncio
-    async def test_meetings_has_value(self):
+    async def test_meetings_has_value(self, redis):
         meeting_info = {
             'meetingID': {'some_structure': 'aaa'}
         }
 
-        await app.state.redis.set(f"{BBB_SERVER_URL}::meetings", json.dumps(
+        await redis.set(f"{BBB_SERVER_URL}::meetings", json.dumps(
             meeting_info
         ))
 

@@ -1,10 +1,10 @@
 import json
-import httpx
 from functools import cached_property
 from hashlib import sha1
-from typing import Optional, Dict
+from typing import Dict, Optional
 from urllib.parse import urlencode
 
+import httpx
 import xmltodict
 from requests import RequestException
 
@@ -54,9 +54,8 @@ class ServerAPI:
         url = f'{self._server.url}{api_method}?{query}'
         return url
 
-    async def create_meeting(self, **kwargs) -> dict:
+    async def create_meeting(self, **params) -> dict:
         api_method = 'create'
-        params = kwargs['kwargs']
         response = await self.request(api_method, params)
 
         await self.refresh()
@@ -99,7 +98,8 @@ class ServerAPI:
 
 
 class MeetingAPI:
-    meeting: Meeting
+    def __init__(self, meeting: Meeting):
+        self.meeting = meeting
 
     _server_api: Optional[ServerAPI] = None
 
@@ -130,8 +130,9 @@ class MeetingAPI:
             'duration': _meeting_data.get('duration')
         }
 
-    def is_meeting_exists(self) -> bool:
-        return self.meeting.id in self.server_api.meetings.keys()
+    async def is_meeting_exists(self) -> bool:
+        async with self.server_api as api:
+            return str(self.meeting.id) in api.meetings.keys()
 
     async def create(self) -> dict:
         async with self.server_api as api:
@@ -140,13 +141,16 @@ class MeetingAPI:
             )
         return response
 
-    async def is_meeting_running(self) -> dict:
-        api_method = 'isMeetingRunningAnchor'
+    async def is_meeting_running(self) -> bool:
+        api_method = 'isMeetingRunning'
         params = {'meetingID': self.meeting.id}
         async with self.server_api as api:
             response = await api.request(api_method, params)
-
-        return response
+        is_running = response.get('running')
+        if is_running == 'true':
+            return True
+        if is_running == 'false':
+            return False
 
     async def end(self) -> dict:
         api_method = 'end'
