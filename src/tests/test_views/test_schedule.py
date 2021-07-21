@@ -75,44 +75,79 @@ class TestDeleteSchedule:
 
 
 class TestGetScheduleCells:
-    def test_get_schedule_cells_return_403(self):
-        pass
+    def test_get_schedule_cells_return_403(self, client):
+        response = client.get('/schedule/cell/')
 
-    def test_get_schedule_cells_status_code(self):
-        pass
+        assert response.status_code == 403
 
-    def test_get_schedule_cells_content(self):
-        pass
+    def test_get_schedule_cells_status_code(self, client, auth_headers):
+        response = client.get('/schedule/cell/', headers=auth_headers)
+
+        assert response.status_code == 200
+
+    def test_get_schedule_cells_content(self, client, auth_headers,
+                                        test_schedule_cell):
+        response = client.get('/schedule/cell/', headers=auth_headers)
+
+        assert test_schedule_cell.id in \
+               [cell['id'] for cell in response.json()]
 
 
 class TestGetScheduleCell:
-    def test_get_schedule_cell_return_403(self):
-        pass
+    def test_get_schedule_cell_return_403(self, client, test_schedule_cell):
+        pk = test_schedule_cell.id
+        response = client.get(f'/schedule/cell/{pk}/')
 
-    def test_get_schedule_cell_status_code(self):
-        pass
+        assert response.status_code == 403
 
-    def test_get_schedule_cell_content(self):
-        pass
+    def test_get_schedule_cell_status_code(self, client, test_schedule_cell,
+                                           auth_headers):
+        pk = test_schedule_cell.id
+        response = client.get(f'/schedule/cell/{pk}/', headers=auth_headers)
+
+        assert response.status_code == 200
+
+    def test_get_schedule_cell_content(self, client, test_schedule_cell,
+                                       auth_headers):
+        pk = test_schedule_cell.id
+        response = client.get(f'/schedule/cell/{pk}/', headers=auth_headers)
+
+        assert pk in response.json().get('id')
 
 
 class TestCreateScheduleCell:
-    def test_create_schedule_cell_return_403(self):
-        pass
+    def test_create_schedule_cell_return_403(self, client):
+        response = client.post(f'/schedule/cell/')
 
-    def test_create_schedule_cell_status_code(self):
-        pass
+        assert response.status_code == 403
 
-    def test_create_schedule_cell_content(self):
-        pass
+    def test_create_schedule_cell_status_code(self, client, auth_headers,
+                                              test_schedule_cell):
+        data = test_schedule_cell.dict(exclude_primary_keys=True)
+        response = client.post('/schedule/cell/', headers=auth_headers,
+                               data=data)
+
+        assert response.status_code == 201
+
+    def test_create_schedule_cell_content(self, client, auth_headers,
+                                          test_schedule_cell):
+        data = test_schedule_cell.dict(exclude_primary_keys=True)
+        response = client.post('/schedule/cell/', headers=auth_headers,
+                               data=data)
+
+        assert 'id' in response.json().keys()
 
 
 class TestDeleteScheduleCell:
-    def test_delete_schedule_cell_return_403(self):
-        pass
+    def test_delete_schedule_cell_return_403(self, client, test_schedule_cell):
+        pk = test_schedule_cell.id
+        response = client.delete(f'/schedule/cell/{pk}/')
 
-    def test_delete_schedule_cell_status_code(self):
-        pass
+        assert response.status_code == 403
 
-    def test_delete_schedule_cell_content(self):
-        pass
+    def test_delete_schedule_cell_status_code(self, client, test_schedule_cell,
+                                              auth_headers):
+        pk = test_schedule_cell.id
+        response = client.delete(f'/schedule/cell/{pk}/', headers=auth_headers)
+
+        assert response.status_code == 204
