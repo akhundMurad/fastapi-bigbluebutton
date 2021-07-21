@@ -4,7 +4,10 @@ from fastapi import APIRouter, Depends
 from fastapi.responses import Response
 from starlette import status
 
+import service
+
 from core.models.schedule import Schedule, ScheduleCell
+from core.models.users import User
 from dependencies import JWTBearer
 
 
@@ -47,8 +50,9 @@ async def get_cells_of_schedule(pk: int):
     status_code=status.HTTP_201_CREATED,
     response_model=Schedule
 )
-async def create_schedule(schedule: Schedule):
-    pass
+async def create_schedule(attendees: List[User]):
+    schedule = await service.create_schedule(attendees)
+    return schedule
 
 
 @router.delete('/{pk}', status_code=status.HTTP_204_NO_CONTENT)
@@ -82,7 +86,8 @@ async def get_schedule_cell(pk: int):
     response_model=ScheduleCell
 )
 async def create_schedule_cell(cell: ScheduleCell):
-    pass
+    await cell.save()
+    return cell
 
 
 @router.delete('/cell/{pk}', status_code=status.HTTP_204_NO_CONTENT)
