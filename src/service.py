@@ -13,5 +13,4 @@ async def create_schedule(attendees: List[User]) -> Schedule:
     schedule = await Schedule.objects.create()
     for attendee in attendees:
         await schedule.attendee_list.add(attendee)
-    await schedule.save()
     return schedule

@@ -1,3 +1,6 @@
+from utils.tests import process_dict
+
+
 class TestGetSchedules:
     def test_get_schedules_return_403(self, client):
         response = client.get('/schedule/')
@@ -47,14 +50,16 @@ class TestCreateSchedule:
     def test_create_schedule_status_code(self, client, test_user,
                                          auth_headers):
         _, user = test_user
-        response = client.post('/schedule/', headers=auth_headers, data=[user])
+        response = client.post('/schedule/', headers=auth_headers,
+                               json=[user.dict()])
 
         assert response.status_code == 201
 
     def test_create_schedule_content(self, client, test_user,
                                      auth_headers):
         _, user = test_user
-        response = client.post('/schedule/', headers=auth_headers, data=[user])
+        response = client.post('/schedule/', headers=auth_headers,
+                               json=[user.dict()])
 
         assert 'id' in response.json().keys()
 
@@ -112,7 +117,7 @@ class TestGetScheduleCell:
         pk = test_schedule_cell.id
         response = client.get(f'/schedule/cell/{pk}/', headers=auth_headers)
 
-        assert pk in response.json().get('id')
+        assert pk == response.json().get('id')
 
 
 class TestCreateScheduleCell:
@@ -123,17 +128,27 @@ class TestCreateScheduleCell:
 
     def test_create_schedule_cell_status_code(self, client, auth_headers,
                                               test_schedule_cell):
-        data = test_schedule_cell.dict(exclude_primary_keys=True)
+        data = test_schedule_cell.dict(include={
+            'datetime_start',
+            'datetime_end',
+            'schedule'
+        })
+        data = process_dict(data)
         response = client.post('/schedule/cell/', headers=auth_headers,
-                               data=data)
+                               json=data)
 
         assert response.status_code == 201
 
     def test_create_schedule_cell_content(self, client, auth_headers,
                                           test_schedule_cell):
-        data = test_schedule_cell.dict(exclude_primary_keys=True)
+        data = test_schedule_cell.dict(include={
+            'datetime_start',
+            'datetime_end',
+            'schedule'
+        })
+        data = process_dict(data)
         response = client.post('/schedule/cell/', headers=auth_headers,
-                               data=data)
+                               json=data)
 
         assert 'id' in response.json().keys()
 
@@ -141,13 +156,13 @@ class TestCreateScheduleCell:
 class TestDeleteScheduleCell:
     def test_delete_schedule_cell_return_403(self, client, test_schedule_cell):
         pk = test_schedule_cell.id
-        response = client.delete(f'/schedule/cell/{pk}/')
+        response = client.delete(f'/schedule/cell/{pk}')
 
         assert response.status_code == 403
 
     def test_delete_schedule_cell_status_code(self, client, test_schedule_cell,
                                               auth_headers):
         pk = test_schedule_cell.id
-        response = client.delete(f'/schedule/cell/{pk}/', headers=auth_headers)
+        response = client.delete(f'/schedule/cell/{pk}', headers=auth_headers)
 
         assert response.status_code == 204

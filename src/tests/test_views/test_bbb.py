@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from core.models.bigbluebutton import Meeting
+from utils.tests import process_dict
 
 
 class TestGetMeetings:
@@ -46,7 +47,7 @@ class TestGetMeeting:
 class TestCreateMeeting:
     def test_create_meeting_return_403(self, client, test_meeting):
         data = test_meeting.dict(exclude={'id'})
-        data = _process_dict(data)
+        data = process_dict(data)
 
         response = client.post('/bbb/', json=data)
 
@@ -55,7 +56,7 @@ class TestCreateMeeting:
     def test_create_meeting_status_code(self, client, test_meeting,
                                         auth_headers):
         data = test_meeting.dict(exclude={'id'})
-        data = _process_dict(data)
+        data = process_dict(data)
 
         response = client.post('/bbb/', json=data,
                                headers=auth_headers)
@@ -64,7 +65,7 @@ class TestCreateMeeting:
 
     def test_create_meeting_content(self, client, test_meeting, auth_headers):
         data = test_meeting.dict(exclude={'id'})
-        data = _process_dict(data)
+        data = process_dict(data)
 
         response = client.post('/bbb/', json=data,
                                headers=auth_headers)
@@ -72,12 +73,3 @@ class TestCreateMeeting:
         meeting = Meeting(**response.json())
         assert meeting.id is not None
 
-
-def _process_dict(dict_: dict) -> dict:
-    output_dict = {}
-    for key, value in dict_.items():
-        if isinstance(value, datetime):
-            value = str(value)
-        output_dict[key] = value
-
-    return output_dict

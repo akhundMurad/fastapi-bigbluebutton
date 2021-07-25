@@ -164,7 +164,6 @@ async def test_schedule(test_user):
 
     schedule = await Schedule.objects.create()
     await schedule.attendee_list.add(user)
-    await schedule.save()
     return schedule
 
 
@@ -178,5 +177,4 @@ async def test_schedule_cell(test_schedule):
         datetime_end=datetime_start + datetime.timedelta(minutes=45),
         schedule=test_schedule
     )
-    await cell.save()
     return cell

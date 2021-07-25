@@ -95,4 +95,3 @@ async def delete_schedule_cell(pk: int):
     cell = await ScheduleCell.objects.get(id=pk)
     await cell.delete()
     return Response(status_code=status.HTTP_204_NO_CONTENT)
-
