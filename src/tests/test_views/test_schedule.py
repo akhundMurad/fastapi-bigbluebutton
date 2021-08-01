@@ -21,7 +21,6 @@ class TestGetSchedules:
 
 class TestGetSchedule:
     def test_get_schedule_return_403(self, client, test_schedule):
-        print(test_schedule)
         pk = test_schedule.id
         response = client.get(f'/schedule/{pk}')
 
