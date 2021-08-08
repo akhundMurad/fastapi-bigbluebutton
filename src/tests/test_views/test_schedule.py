@@ -1,3 +1,4 @@
+from utils.hashing import create_access_token
 from utils.tests import process_dict
 
 
@@ -13,6 +14,7 @@ class TestGetSchedules:
         assert response.status_code == 200
 
     def test_get_schedules_content(self, client, auth_headers, test_schedule):
+        _, test_schedule = test_schedule
         response = client.get('/schedule/', headers=auth_headers)
 
         assert test_schedule.id in \
@@ -21,21 +23,33 @@ class TestGetSchedules:
 
 class TestGetSchedule:
     def test_get_schedule_return_403(self, client, test_schedule):
-        pk = test_schedule.id
+        _, schedule = test_schedule
+        pk = schedule.id
         response = client.get(f'/schedule/{pk}')
 
         assert response.status_code == 403
 
-    def test_get_schedule_status_code(self, client, test_schedule,
-                                      auth_headers):
-        pk = test_schedule.id
-        response = client.get(f'/schedule/{pk}', headers=auth_headers)
+    def test_get_schedule_status_code(self, client, test_schedule):
+        user, schedule = test_schedule
+        pk = schedule.id
+        headers = {
+            'Authorization': 'Bearer ' + create_access_token(
+                data={'sub': user.username}
+            )
+        }
+        response = client.get(f'/schedule/{pk}', headers=headers)
 
         assert response.status_code == 200
 
-    def test_get_schedule_content(self, client, test_schedule, auth_headers):
-        pk = test_schedule.id
-        response = client.get(f'/schedule/{pk}', headers=auth_headers)
+    def test_get_schedule_content(self, client, test_schedule):
+        user, schedule = test_schedule
+        pk = schedule.id
+        headers = {
+            'Authorization': 'Bearer ' + create_access_token(
+                data={'sub': user.username}
+            )
+        }
+        response = client.get(f'/schedule/{pk}', headers=headers)
 
         assert pk == response.json().get('id')
 
@@ -65,6 +79,7 @@ class TestCreateSchedule:
 
 class TestDeleteSchedule:
     def test_delete_schedule_return_403(self, client, test_schedule):
+        _, test_schedule = test_schedule
         pk = test_schedule.id
         response = client.delete(f'/schedule/{pk}')
 
@@ -72,6 +87,7 @@ class TestDeleteSchedule:
 
     def test_delete_schedule_status_code(self, client, test_schedule,
                                          auth_headers):
+        _, test_schedule = test_schedule
         pk = test_schedule.id
         response = client.delete(f'/schedule/{pk}', headers=auth_headers)
 
@@ -91,6 +107,7 @@ class TestGetScheduleCells:
 
     def test_get_schedule_cells_content(self, client, auth_headers,
                                         test_schedule_cell):
+        _, test_schedule_cell = test_schedule_cell
         response = client.get('/schedule/cell/', headers=auth_headers)
 
         assert test_schedule_cell.id in \
@@ -99,22 +116,34 @@ class TestGetScheduleCells:
 
 class TestGetScheduleCell:
     def test_get_schedule_cell_return_403(self, client, test_schedule_cell):
+        _, test_schedule_cell = test_schedule_cell
         pk = test_schedule_cell.id
         response = client.get(f'/schedule/cell/{pk}/')
 
         assert response.status_code == 403
 
-    def test_get_schedule_cell_status_code(self, client, test_schedule_cell,
-                                           auth_headers):
+    def test_get_schedule_cell_status_code(self, client, test_schedule_cell):
+        user, test_schedule_cell = test_schedule_cell
+        headers = {
+            'Authorization': 'Bearer ' + create_access_token(
+                data={'sub': user.username}
+            )
+        }
         pk = test_schedule_cell.id
-        response = client.get(f'/schedule/cell/{pk}/', headers=auth_headers)
+        response = client.get(f'/schedule/cell/{pk}/', headers=headers)
 
         assert response.status_code == 200
 
     def test_get_schedule_cell_content(self, client, test_schedule_cell,
                                        auth_headers):
+        user, test_schedule_cell = test_schedule_cell
+        headers = {
+            'Authorization': 'Bearer ' + create_access_token(
+                data={'sub': user.username}
+            )
+        }
         pk = test_schedule_cell.id
-        response = client.get(f'/schedule/cell/{pk}/', headers=auth_headers)
+        response = client.get(f'/schedule/cell/{pk}/', headers=headers)
 
         assert pk == response.json().get('id')
 
@@ -127,6 +156,7 @@ class TestCreateScheduleCell:
 
     def test_create_schedule_cell_status_code(self, client, auth_headers,
                                               test_schedule_cell):
+        _, test_schedule_cell = test_schedule_cell
         data = test_schedule_cell.dict(include={
             'datetime_start',
             'datetime_end',
@@ -140,6 +170,7 @@ class TestCreateScheduleCell:
 
     def test_create_schedule_cell_content(self, client, auth_headers,
                                           test_schedule_cell):
+        _, test_schedule_cell = test_schedule_cell
         data = test_schedule_cell.dict(include={
             'datetime_start',
             'datetime_end',
@@ -154,6 +185,7 @@ class TestCreateScheduleCell:
 
 class TestDeleteScheduleCell:
     def test_delete_schedule_cell_return_403(self, client, test_schedule_cell):
+        _, test_schedule_cell = test_schedule_cell
         pk = test_schedule_cell.id
         response = client.delete(f'/schedule/cell/{pk}')
 
@@ -161,6 +193,7 @@ class TestDeleteScheduleCell:
 
     def test_delete_schedule_cell_status_code(self, client, test_schedule_cell,
                                               auth_headers):
+        _, test_schedule_cell = test_schedule_cell
         pk = test_schedule_cell.id
         response = client.delete(f'/schedule/cell/{pk}', headers=auth_headers)
 

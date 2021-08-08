@@ -43,7 +43,11 @@ async def get_schedule(
         'attendee_list'
     ).get(id=pk)
 
-    if current_user.id in schedule.attendee_list.values(['id']):
+    if current_user.id in await schedule.attendee_list.values_list(
+        ['id'],
+        flatten=True,
+        exclude_through=True
+    ):
         return schedule
     return Response(status_code=status.HTTP_404_NOT_FOUND)
 
@@ -60,7 +64,7 @@ async def get_cells_of_schedule(
         'schedule__attendee_list'
     ).get(schedule__id=pk)
     
-    if current_user.id in cell.schedule.attendee_list.values(['id']):
+    if current_user.id in await cell.schedule.attendee_list.values(['id']):
         return cell
     return Response(status_code=status.HTTP_404_NOT_FOUND)
 
@@ -107,7 +111,11 @@ async def get_schedule_cell(
 ):
     cell = await ScheduleCell.objects.get(id=pk)
 
-    if current_user.id in cell.schedule.attendee_list.values(['id']):
+    if current_user.id in await cell.schedule.attendee_list.values_list(
+        ['id'],
+        flatten=True,
+        exclude_through=True
+    ):
         return cell
     return Response(status_code=status.HTTP_404_NOT_FOUND)
 

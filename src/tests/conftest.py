@@ -84,10 +84,7 @@ async def test_meeting() -> Meeting:
 def auth_headers(test_user) -> dict:
     password, user = test_user
     headers = {}
-    token = create_access_token(data={
-        'username': user.username,
-        'password': password
-    })
+    token = create_access_token(data={'sub': user.username})
     headers['Authorization'] = f'Bearer {token}'
     return headers
 
@@ -159,16 +156,17 @@ def meeting_join_response(mocker):
 
 
 @pytest.fixture
-async def test_schedule(test_user):
+async def test_schedule(test_user) -> Tuple[User, Schedule]:
     _, user = test_user
 
     schedule = await Schedule.objects.create()
     await schedule.attendee_list.add(user)
-    return schedule
+    return user, schedule
 
 
 @pytest.fixture
-async def test_schedule_cell(test_schedule):
+async def test_schedule_cell(test_schedule) -> Tuple[User, ScheduleCell]:
+    user, test_schedule = test_schedule
     datetime_start = datetime.datetime.now() + datetime.timedelta(
         days=random.randint(0, 7)
     )
@@ -177,4 +175,4 @@ async def test_schedule_cell(test_schedule):
         datetime_end=datetime_start + datetime.timedelta(minutes=45),
         schedule=test_schedule
     )
-    return cell
+    return user, cell
