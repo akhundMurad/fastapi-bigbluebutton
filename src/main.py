@@ -4,7 +4,7 @@ from loguru import logger
 
 from core.db import database
 from redis import init_redis_pool
-from views import auth, bigbluebutton
+from views import auth, bigbluebutton, schedule
 
 app = FastAPI()
 app.state.database = database
@@ -33,6 +33,7 @@ async def shutdown() -> None:
 
 app.include_router(auth.router)
 app.include_router(bigbluebutton.router)
+app.include_router(schedule.router)
 
 
 if __name__ == "__main__":

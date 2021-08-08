@@ -13,6 +13,7 @@ from loguru import logger
 
 from core.db import metadata
 from core.models.bigbluebutton import Meeting
+from core.models.schedule import Schedule, ScheduleCell
 from core.models.users import User, UserRoleChoices
 from core.settings import DATABASE_URL
 from main import app
@@ -83,10 +84,7 @@ async def test_meeting() -> Meeting:
 def auth_headers(test_user) -> dict:
     password, user = test_user
     headers = {}
-    token = create_access_token(data={
-        'username': user.username,
-        'password': password
-    })
+    token = create_access_token(data={'sub': user.username})
     headers['Authorization'] = f'Bearer {token}'
     return headers
 
@@ -155,3 +153,26 @@ def meeting_join_response(mocker):
         response.text = file.read()
 
     mocked_get.return_value = response
+
+
+@pytest.fixture
+async def test_schedule(test_user) -> Tuple[User, Schedule]:
+    _, user = test_user
+
+    schedule = await Schedule.objects.create()
+    await schedule.attendee_list.add(user)
+    return user, schedule
+
+
+@pytest.fixture
+async def test_schedule_cell(test_schedule) -> Tuple[User, ScheduleCell]:
+    user, test_schedule = test_schedule
+    datetime_start = datetime.datetime.now() + datetime.timedelta(
+        days=random.randint(0, 7)
+    )
+    cell = await ScheduleCell.objects.create(
+        datetime_start=datetime_start,
+        datetime_end=datetime_start + datetime.timedelta(minutes=45),
+        schedule=test_schedule
+    )
+    return user, cell
