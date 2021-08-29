@@ -1,13 +1,17 @@
-from aioredis import Redis, create_redis_pool
+from arq import create_pool, ArqRedis
+from arq.connections import RedisSettings
 
-from core.settings import REDIS_DB, REDIS_PASSWORD, REDIS_URL
+from core import settings
 
 
-async def init_redis_pool() -> Redis:
-    redis = await create_redis_pool(
-        REDIS_URL,
-        password=REDIS_PASSWORD or None,
-        encoding="utf-8",
-        db=REDIS_DB
-    )
+RedisSettings(
+    host=settings.REDIS_HOST,
+    port=int(settings.REDIS_PORT),
+    database=settings.REDIS_DB,
+    password=settings.REDIS_PASSWORD
+)
+
+
+async def init_redis_pool() -> ArqRedis:
+    redis = await create_pool(RedisSettings())
     return redis

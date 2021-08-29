@@ -26,7 +26,10 @@ class ServerAPI:
         meetings = await app.state.redis.get(
             f"{self.server.url}::meetings"
         )
-        self.meetings = json.loads(meetings) or {}
+        try:
+            self.meetings = json.loads(meetings)
+        except TypeError:
+            self.meetings = {}
         return self
 
     async def __aexit__(self, *excinfo):
