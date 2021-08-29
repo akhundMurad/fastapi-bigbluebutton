@@ -17,6 +17,5 @@ async def create_schedule(attendees: List[User]) -> Schedule:
 
 
 async def create_meetings_by_cell(schedule_cell: ScheduleCell) -> NoReturn:
-
     async for meeting in schedule_cell.meetings.all():
         await meeting.api.create()
