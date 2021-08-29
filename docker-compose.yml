@@ -9,11 +9,11 @@ services:
     hostname: app
     command: sh -c "alembic upgrade head && python main.py"
     volumes:
-    - ./src:/app
+      - ./src:/app
     env_file:
       - .envfile
     ports:
-    - '0.0.0.0:8000:8000'
+      - '0.0.0.0:8000:8000'
     depends_on:
       - db
     restart: always
@@ -51,3 +51,4 @@ services:
 
 volumes:
   db-data:
+  redis:
