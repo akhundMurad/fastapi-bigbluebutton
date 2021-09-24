@@ -4,6 +4,7 @@ from uuid import uuid4
 
 import ormar
 
+from bigbluebutton.api import MeetingAPI
 from core.db import database, metadata
 from core.models.schedule import ScheduleCell
 
@@ -38,3 +39,11 @@ class Meeting(ormar.Model):
 
     datetime_start: datetime = ormar.DateTime()
     datetime_end: datetime = ormar.DateTime()
+
+    _api: Optional[MeetingAPI] = None
+
+    @property
+    def api(self) -> MeetingAPI:
+        if self._api is None:
+            self._api = MeetingAPI(meeting=self)
+        return self._api
