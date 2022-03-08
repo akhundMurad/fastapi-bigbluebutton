@@ -1,39 +1,37 @@
 import uvicorn
 from fastapi import FastAPI
-from loguru import logger
 
-from core.db import database
-from redis import init_redis_pool
-from views import auth, bigbluebutton, schedule
+from src.db import events
 
-app = FastAPI()
-app.state.database = database
+from src.api.routers import schedule, auth, bigbluebutton
 
-
-@app.on_event("startup")
-async def startup() -> None:
-    app.state.redis = await init_redis_pool()
-
-    database_ = app.state.database
-    if not database_.is_connected:
-        await database_.connect()
-        logger.success('Connected to DB!')
+from src.api.dependencies.settings import get_settings, settings_provider
+from src.api.dependencies.session import sessionmaker_provider, get_sessionmaker
+from src.api.dependencies.jwtbearer import jwtbearer_provider, get_jwtbearer
+from src.api.dependencies.user import current_user_provider, get_current_user
 
 
-@app.on_event("shutdown")
-async def shutdown() -> None:
-    app.state.redis.close()
-    await app.state.redis.wait_closed()
+def get_app() -> FastAPI:
+    application = FastAPI()
 
-    database_ = app.state.database
-    if database_.is_connected:
-        await database_.disconnect()
-        logger.info('Disconnected from DB.')
+    application.dependency_overrides[settings_provider] = get_settings
+    application.dependency_overrides[sessionmaker_provider] = get_sessionmaker
+    application.dependency_overrides[jwtbearer_provider] = get_jwtbearer
+    application.dependency_overrides[current_user_provider] = get_current_user
+
+    application.add_event_handler("startup", events.connect_to_db)
+    application.add_event_handler("shutdown", events.close_db_connection)
+    application.add_event_handler("startup", events.init_redis_pool)
+    application.add_event_handler("shutdown", events.close_redis_pool)
+
+    application.include_router(auth.router)
+    application.include_router(bigbluebutton.router)
+    application.include_router(schedule.router)
+
+    return application
 
 
-app.include_router(auth.router)
-app.include_router(bigbluebutton.router)
-app.include_router(schedule.router)
+app = get_app()
 
 
 if __name__ == "__main__":

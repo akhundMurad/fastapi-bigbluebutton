@@ -4,8 +4,7 @@ services:
   app:
     build:
       context: .
-      dockerfile: Dockerfile
-    image: app
+      dockerfile: docker/Dockerfile.app
     hostname: app
     command: sh -c "alembic upgrade head && python main.py"
     volumes:
@@ -22,7 +21,7 @@ services:
       driver: "json-file"
 
   db:
-    image: postgres:12-alpine
+    image: postgres:14-alpine
     env_file:
       - .envfile
     volumes:

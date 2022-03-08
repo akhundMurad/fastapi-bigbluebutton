@@ -1,0 +1,6 @@
+pytest==7.0.1
+pytest-env==0.6.2
+pytest-asyncio==0.18.2
+faker==13.3.0
+pytest-mock==3.7.0
+pytest-xdist==2.5.0

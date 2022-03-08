@@ -1,0 +1,26 @@
+version: "3.7"
+
+services:
+  redis:
+    image: redis:alpine
+    container_name: redis
+    restart: unless-stopped
+    volumes:
+      - task-storage:/data
+
+  db:
+    image: postgres:14-alpine
+    container_name: db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=bbb
+      - POSTGRES_USER=bbbuser
+      - POSTGRES_PASSWORD=bbb
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+volumes:
+  task-storage: null
+  db-data: null

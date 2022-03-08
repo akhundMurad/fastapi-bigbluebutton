@@ -1,0 +1,36 @@
+version: "3.7"
+
+services:
+  test:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.test
+    container_name: test
+    command: sh -c "pytest -n logical"
+    volumes:
+      - .:/app
+    depends_on:
+      - redis
+      - db
+
+  redis:
+    image: redis:alpine
+    container_name: redis
+    restart: unless-stopped
+    volumes:
+      - task-storage:/data
+
+  db:
+    image: postgres:14-alpine
+    container_name: db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+volumes:
+  task-storage: null
+  db-data: null

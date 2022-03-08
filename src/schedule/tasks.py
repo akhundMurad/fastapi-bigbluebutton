@@ -1,11 +1,10 @@
-from typing import NoReturn
+from uuid import UUID
 
-from core.models.schedule import ScheduleCell
+from src.services.schedule.schedule_cell import ScheduleCellService
 
 
-async def create_meetings(ctx, schedule_cell_id: int) -> NoReturn:
-    from service import create_meetings_by_cell
+async def create_meetings(ctx, schedule_cell_id: UUID) -> None:
+    schedule_cell = await ScheduleCellService().read(schedule_cell_id)
 
-    schedule_cell = await ScheduleCell.objects.get(id=schedule_cell_id)
-
-    await create_meetings_by_cell(schedule_cell)
+    for meeting in schedule_cell.value.meetings:
+        meeting.api.create()
